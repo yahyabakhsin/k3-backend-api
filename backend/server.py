@@ -48,7 +48,6 @@ def send_to_telegram(data: ViolationData):
     caption = (
         f"⚠️ *PELANGGARAN K3 TERDETEKSI* ⚠️\n\n"
         f"⏰ *Waktu:* {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        f"🆔 *ID Pekerja:* {data.id_pekerja}\n"
         f"📍 *Lokasi:* {data.camera_id}\n"
         f"👤 *Jenis:* {jenis_pelanggaran}\n"
     )
