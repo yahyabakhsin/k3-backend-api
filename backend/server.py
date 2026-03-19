@@ -36,7 +36,7 @@ LABEL_MAP = {
 class ViolationData(BaseModel):
     camera_id: str
     label: str
-    image_path: str
+    image_path: str 
     id_pekerja: Optional[str] = "Tidak diketahui" 
 
 def send_to_telegram(data: ViolationData):
@@ -53,12 +53,20 @@ def send_to_telegram(data: ViolationData):
         f"👤 *Jenis:* {jenis_pelanggaran}\n"
     )
 
+    # Kirim URL IMG
+    payload = {
+        'chat_id': CHAT_ID, 
+        'photo': data.image_path, 
+        'caption': caption, 
+        'parse_mode': 'Markdown'
+    }
+
     try:
-        with open(data.image_path, 'rb') as photo:
-            payload = {'chat_id': CHAT_ID, 'caption': caption, 'parse_mode': 'Markdown'}
-            requests.post(url, data=payload, files={'photo': photo})
-    except FileNotFoundError:
-        print(f"❌ ERROR: File gambar {data.image_path} tidak ditemukan!")
+        res = requests.post(url, data=payload)
+        if res.status_code != 200:
+            print(f"❌ Gagal kirim Telegram: {res.text}")
+    except Exception as e:
+        print(f"❌ ERROR API Telegram: {e}")
 
 @app.post("/report-violation")
 async def report_violation(data: ViolationData, background_tasks: BackgroundTasks):
@@ -76,9 +84,9 @@ async def report_violation(data: ViolationData, background_tasks: BackgroundTask
         db = SessionLocal()
         db_item = Violation(
             camera_id=data.camera_id,
-            id_pekerja=data.id_pekerja, # Simpan ID pekerja ke DB
+            id_pekerja=data.id_pekerja,
             violation_type=data.label,
-            image_path=data.image_path
+            image_path=data.image_path 
         )
         db.add(db_item)
         db.commit()
